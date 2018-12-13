@@ -4,7 +4,7 @@ from s4api.swagger import ApiClient
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
-endpoint = "http://localhost:8000"
+endpoint = "http://localhost:7200"
 repo_name = "movies"
 
 client = ApiClient(endpoint=endpoint)
