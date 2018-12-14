@@ -16,7 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path
 from app import views
+
 urlpatterns = [
     path('', views.home, name='home'),
-    # re_path(r'^/(.*)', views.home),
+    path('celeb/', views.celebrity, name='celebrity'),
+    re_path(r'^celeb/?P<name>(.*)', views.celebrity),
+    path('movie/', views.movie, name='movie'),
+    re_path(r'^movie/?P<name(.*)', views.movie)
 ]
