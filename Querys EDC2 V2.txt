@@ -3,25 +3,26 @@ Lista de Querys:
 testar 1. Lista todos os filmes;
 
 PREFIX movPred:<http://movies.org/pred/>
-SELECT ?mov
+SELECT distinct ?name
 WHERE{
-	?film movPred:name ?who.
-    	?film movPred:name ?mov
+?film movPred:directed_by ?real .
+?film movPred:name ?name .
 }
+
 
 -----------------------------------------------------------------------------
 2. Buscar um filme pelo nome;
 
 PREFIX movPred:<http://movies.org/pred/>
-SELECT ?mov
+SELECT distinct ?name
 WHERE{
-	?film movPred:name ?name.
-		FILTER regex(?name, "Bad Taste", "i")
-    	?film movPred:name ?mov
+?film movPred:directed_by ?real .
+?film movPred:name ?name .
+FILTER regex(?name, "''' + str(to_be_searched) + '''", "i") .
 }
 	
 -----------------------------------------------------------------------------
-3. Listar todos os filmes pelo ano de lançamento;
+3. Listar todos os filmes pelo ano de lanï¿½amento;
 
 -----------------------------------------------------------------------------
 4. Listar todos os filmes de um determinado genero;
@@ -33,7 +34,7 @@ PREFIX movPred:<http://movies.org/pred/>
 SELECT ?directed
 WHERE{
 	?film movPred:directed_by ?name.
-    	?name movPred:name ?directed
+    	?name movPred:name ?directed .
 }
 
 -----------------------------------------------------------------------------
@@ -44,18 +45,18 @@ SELECT ?mov
 WHERE{
 	?film movPred:directed_by ?who.
     	?who movPred:name ?name
-    	FILTER regex(?name, "irwin winkler", "i")
-    	?film movPred:name ?mov
+    	FILTER regex(?name, nameDirected, "i")
+    	?film movPred:name ?mov .
 }
 	
 -----------------------------------------------------------------------------
 7. Listar todos os atores;
 
 PREFIX movPred:<http://movies.org/pred/>
-SELECT ?starring
+SELECT distinct ?starring
 WHERE{
 	?film movPred:starring ?name.
-    	?name movPred:name ?starring
+    ?name movPred:name ?starring
 }
 
 -----------------------------------------------------------------------------
