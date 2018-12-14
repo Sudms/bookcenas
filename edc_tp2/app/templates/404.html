@@ -349,18 +349,39 @@
 
                         <p>We're sorry, but the page you were looking for doesn't exist.</p>
 
-                        <!-- ===== START OF SEARCH FORM ===== -->
-                        <form id="search-form-1">
-                            <div class="row justify-content-center">
-                                <div class="col-md-8 col-sm-10 col-12">
-                                    <div class="form-group">
-                                        <input name="search-keyword" type="text" id="search-keyword" value="" class="form-control" placeholder="Enter Movies or Series Title" autocomplete="off">
-                                        <button type="submit" class="btn btn-main btn-effect"><i class="fa fa-search"></i></button>
-                                    </div>
+                        <!-- ===== START OF SEARCH FORM WRAPPER ===== -->
+            <div class="search-form-wrapper search-form-rev">
+                <div class="container">
+
+                    <!-- ===== START OF SEARCH FORM1 ===== -->
+                    <form id="search-form-1" method="post">
+                        {% csrf_token %}
+                        <div class="row justify-content-center">
+                            <div class="col-md-8 col-sm-10 col-12">
+                                <div class="form-group">
+                                    <input name="movie-search-keyword" type="text" id="movie-search-keyword" value="" class="form-control" placeholder="Enter movie title...">
+                                    <button type="submit" class="btn btn-main btn-effect"><i class="fa fa-search"></i></button>
                                 </div>
                             </div>
-                        </form>
-                        <!-- ===== END OF SEARCH FORM ===== -->
+                        </div>
+                    </form>
+                    <!-- ===== END OF SEARCH FORM1 ===== -->
+
+                    <!-- ===== START OF SEARCH FORM2 ===== -->
+                    <form id="search-form-1" method="post">
+                        {% csrf_token %}
+                        <div class="row justify-content-center">
+                            <div class="col-md-8 col-sm-10 col-12">
+                                <div class="form-group">
+                                    <input name="actor-search-keyword" type="text" id="actor-search-keyword" value="" class="form-control" placeholder="Enter actor/director name...">
+                                    <button type="submit" class="btn btn-main btn-effect"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- ===== END OF SEARCH FORM2 ===== -->
+                </div>
+            </div>
 
                     </div>
                 </div>

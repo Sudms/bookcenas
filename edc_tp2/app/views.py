@@ -13,19 +13,19 @@ accessor = GraphDBApi(client)
 # Create your views here.
 
 def home(request):
-    to_be_searched = None
-
+    actor_to_be_search = movie_to_be_searched = None
+    
     try:
-        if 'search-keyword' in request.POST:
-            to_be_searched = request.POST.get("search-keyword")
+        if 'movie-search-keyword' in request.POST:
+            movie_to_be_searched = request.POST.get("movie-search-keyword")
 
             query = '''
                 PREFIX movPred:<http://movies.org/pred/>
-                SELECT ?mov
+                SELECT distinct ?name
                 WHERE{
+                ?film movPred:directed_by ?who .
                 ?film movPred:name ?name .
-                FILTER regex(?name, "''' + str(to_be_searched) + '''", "i") .
-                ?film movPred:name ?mov .
+                FILTER regex(?name, "''' + str(movie_to_be_searched) + '''", "i") .
                 }
             '''
 
@@ -33,8 +33,31 @@ def home(request):
             res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
             res = json.loads(res)
     
-            for e in res['results']['bindings']:
-                print(e['mov']['value'])
+            # for e in res['results']['bindings']:
+            #     print(e['mov']['value'])
+            
+            if not res['results']['bindings']:
+                return render(request, '404.html', {})
+
+        if 'actor-search-keyword' in request.POST:
+            actor_to_be_searched = request.POST.get("actor-search-keyword")
+
+            query = '''
+                PREFIX movPred:<http://movies.org/pred/>
+                SELECT distinct ?name
+                WHERE{
+                ?film movPred:directed_by ?who .
+                ?film movPred:name ?name .
+                FILTER regex(?name, "''' + str(actor_to_be_searched) + '''", "i") .
+                }
+            '''
+
+            payload_query = {"query" : query}
+            res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
+            res = json.loads(res)
+    
+            # for e in res['results']['bindings']:
+            #     print(e['mov']['value'])
             
             if not res['results']['bindings']:
                 return render(request, '404.html', {})
