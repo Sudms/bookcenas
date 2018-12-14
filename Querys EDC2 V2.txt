@@ -1,0 +1,95 @@
+Lista de Querys:
+
+testar 1. Lista todos os filmes;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?mov
+WHERE{
+	?film movPred:name ?who.
+    	?film movPred:name ?mov
+}
+
+-----------------------------------------------------------------------------
+2. Buscar um filme pelo nome;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?mov
+WHERE{
+	?film movPred:name ?name.
+		FILTER regex(?name, "Bad Taste", "i")
+    	?film movPred:name ?mov
+}
+	
+-----------------------------------------------------------------------------
+3. Listar todos os filmes pelo ano de lançamento;
+
+-----------------------------------------------------------------------------
+4. Listar todos os filmes de um determinado genero;
+
+-----------------------------------------------------------------------------
+testar 5. Listar todos os diretores;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?directed
+WHERE{
+	?film movPred:directed_by ?name.
+    	?name movPred:name ?directed
+}
+
+-----------------------------------------------------------------------------
+6. Listar os filmes produzidos por um diretor, fazendo a busca pelo seu nome;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?mov
+WHERE{
+	?film movPred:directed_by ?who.
+    	?who movPred:name ?name
+    	FILTER regex(?name, "irwin winkler", "i")
+    	?film movPred:name ?mov
+}
+	
+-----------------------------------------------------------------------------
+7. Listar todos os atores;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?starring
+WHERE{
+	?film movPred:starring ?name.
+    	?name movPred:name ?starring
+}
+
+-----------------------------------------------------------------------------
+8. Listar todos os filmes estrelados por um ator, fazendo a busca pelo seu nome;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?mov
+WHERE{
+	?film movPred:starring ?who.
+    	?who movPred:name ?name
+    	FILTER regex(?name, "Robert De Niro", "i")
+    	?film movPred:name ?mov
+}
+ 
+-----------------------------------------------------------------------------
+9. Fazer uma busca do filme pelo nome e listar seus atores;
+
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?starring
+WHERE{
+	?film movPred:name ?name.
+    	FILTER regex(?name, "15 Minutes", "i")
+    	?film movPred:starring ?who.
+    	?who movPred:name ?starring
+}
+
+-----------------------------------------------------------------------------
+10. 
+
+	
+-----------------------------------------------------------------------------
+11. 
+
+	
+-----------------------------------------------------------------------------
+
+
