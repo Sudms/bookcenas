@@ -34,7 +34,8 @@ PREFIX movPred:<http://movies.org/pred/>
 SELECT ?directed
 WHERE{
 	?film movPred:directed_by ?name.
-    	?name movPred:name ?directed .
+    ?name movPred:name ?directed .
+	
 }
 
 -----------------------------------------------------------------------------
@@ -84,7 +85,16 @@ WHERE{
 }
 
 -----------------------------------------------------------------------------
-10. 
+10. Obter o nome do director consoate o filme
+PREFIX movPred:<http://movies.org/pred/>
+SELECT ?name
+WHERE{
+    	?film movPred:directed_by ?director.
+    	?film movPred:name ?s .
+    	?film movPred:directed_by ?o .
+    	?o movPred:name ?name .
+    	FILTER regex(?s, "I shot Andy Warhol", "i") .
+}
 
 	
 -----------------------------------------------------------------------------

@@ -53,9 +53,16 @@ def home(request):
                 PREFIX movPred:<http://movies.org/pred/>
                 SELECT distinct ?name
                 WHERE{
-                ?film movPred:starring ?who .
+                {?film movPred:starring ?who .
                 ?who movPred:name ?name .
                 FILTER regex(?name, "''' + str(celeb_to_be_searched) + '''", "i") .
+                }
+                UNION
+                {
+                ?film movPred:directed_by ?who .
+                ?who movPred:name ?name .
+                FILTER regex(?name, "''' + str(celeb_to_be_searched) + '''", "i") .
+                }
                 }
             '''
 
@@ -82,8 +89,26 @@ def home(request):
 def celebrity(request):
     if 'name' in request.GET:
         name = request.GET['name']
+        
+        query = '''
+            PREFIX movPred:<http://movies.org/pred/>
+            SELECT ?mov
+            WHERE{
+            ?film movPred:starring ?who.
+            ?who movPred:name ?name
+            FILTER regex(?name, "''' + str(name) + '''", "i")
+            ?film movPred:name ?mov
+            }
+        '''
+        payload_query = {"query" : query}
+        res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
+        res = json.loads(res)
+        movies_starring = list()
+    
+        for e in res['results']['bindings']:
+            movies_starring.append(e['mov']['value'])
 
-        return render(request, 'celebrity-detail.html', {})
+        return render(request, 'celebrity-detail.html', {"name" : name, "filmography": movies_starring})
     else:
         return render(request, '404.html', {})
 
@@ -115,6 +140,24 @@ def movie(request):
         
         print(cast_to_list)
 
-        return render(request, 'movie-detail.html', {"cast" : cast_to_list})
+        query = '''
+        PREFIX movPred:<http://movies.org/pred/>
+        SELECT ?name
+        WHERE{
+    	?film movPred:directed_by ?director.
+    	?film movPred:name ?s .
+    	?film movPred:directed_by ?o .
+    	?o movPred:name ?name .
+    	FILTER regex(?s, "''' + str(name) + '''", "i") .
+        }
+        '''
+        payload_query = {"query" : query}
+        res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
+        res = json.loads(res)
+
+        for e in res['results']['bindings']:
+           movie_director=e['name']['value']
+
+        return render(request, 'movie-detail.html', {"name": name, "director": movie_director, "cast" : cast_to_list})
     else:
         return render(request, '404.html', {})
