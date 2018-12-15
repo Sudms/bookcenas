@@ -97,7 +97,6 @@
                         <ul class="navbar-nav mx-auto" id="main-menu">
                             <!-- Menu Item -->
                             <li class="nav-item dropdown">
-                                <a class="nav-link" href="/" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Home</a>
                             </li>
                         </ul>
                         <!-- ====== End of Main Menu ====== -->
@@ -108,7 +107,7 @@
 
                             <!-- Menu Item -->
                             <li class="nav-item">
-                                <a class="nav-link toggle-search" href="#">
+                                <a class="nav-link toggle-search" href="/">
                                     <i class="fa fa-search"></i>
                                 </a>
                             </li>
@@ -204,7 +203,7 @@
                                 <div class="tab-pane fade" id="award" role="tabpanel" aria-labelledby="award-tab" aria-expanded="false">
                                     <ul class="film-list">
                                     {% for k,v in dict.items  %}
-                                          <li><a href="/movie/?name={{award}}">{{k}}</a><span class="year">{{v}}</span></li>
+                                          <li><a>{{k}}</a><span class="year">{{v}}</span></li>
                                     {% endfor %}                                       
                                     </ul>
                                 </div>
