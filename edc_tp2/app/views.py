@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-endpoint = "http://localhost:8000"
+endpoint = "http://localhost:7200"
 repo_name = "movies"
 
 # QUERY https://query.wikidata.org/#SELECT%20distinct%20%3Fitem%20%3FitemLabel%20%3Foccupation%20%3Fcountry%20%3Fgender%20%3Fbirth%20%3Fdeath%20%3Fimage%20%0AWHERE%20%7B%0A%3Fitem%20wdt%3AP31%20wd%3AQ5%20.%0A%3Fitem%20%3Flabel%20%22Johnny%20Depp%22%40en%20.%0A%3Fitem%20wdt%3AP569%20%3Fbirth%20.%0A%3Fitem%20wdt%3AP106%20%3Foccupation%20.%0A%3Fitem%20wdt%3AP27%20%3Fcountry%20.%0A%3Fitem%20wdt%3AP18%20%3Fimage%20.%0A%3Fitem%20wdt%3AP21%20%3Fgender%20.%0AOPTIONAL%20%7B%3Fitem%20wdt%3AP570%20%3Fdeath%20.%7D%0A%0ASERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D
@@ -140,13 +140,14 @@ def celebrity(request):
 
         sparql.setQuery(
             '''
-            SELECT distinct ?item ?itemLabel ?country ?gender ?birth ?death ?image 
+            SELECT distinct ?item ?itemLabel ?countryLabel ?genderLabel ?birth ?death ?image ?imdb
             WHERE {
             ?item wdt:P31 wd:Q5 .?item ?label "''' + str(name) + '''"@en .
             ?item wdt:P569 ?birth .
             ?item wdt:P27 ?country .
             ?item wdt:P18 ?image .
             ?item wdt:P21 ?gender .
+            ?item wdt:P345 ?imdb .
             OPTIONAL {?item wdt:P570 ?death .}
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
             }
@@ -156,11 +157,12 @@ def celebrity(request):
         results = sparql.query().convert()
 
         for result in results["results"]["bindings"]:
-            birth=result["birth"]["value"]
-            birth=birth[:10]
-            country=result["country"]["value"]
-            gender=result["gender"]["value"]
-            image=result["image"]["value"]
+            birth = result["birth"]["value"]
+            birth = birth[:10]
+            country = result["countryLabel"]["value"]
+            gender = result["genderLabel"]["value"]
+            image = result["image"]["value"]
+            imdb = result["imdb"]["value"]
 
         sparql.setQuery(
             '''
@@ -169,16 +171,12 @@ def celebrity(request):
             {
             # find a human
             ?actor wdt:P31 wd:Q5 .
-            # with English label 
-            ?actor rdfs:label "'''+str(name)+'''"@en .
-            # Now comes the statements/qualifiers magic:
-            # just applying what the documentation says https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries#Working_with_qualifiers
-            # using this query as example https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries#US_presidents_and_their_spouses.2C_in_date_order
+            ?actor rdfs:label "''' + str(name) + '''"@en .
             ?actor p:P166 ?awardstatement .
             ?awardstatement ps:P166 ?award .
             ?awardstatement pq:P585 ?date .
             ?awardstatement pq:P1686 ?forWork .
-            SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
             }
             ''')
 
@@ -187,11 +185,11 @@ def celebrity(request):
         thisdict = dict()
 
         for result in results["results"]["bindings"]:
-            a=result["awardLabel"]["value"]
-            d=result["date"]["value"]
-            thisdict[a]= d[:4]     
+            a = result["awardLabel"]["value"]
+            d = result["date"]["value"]
+            thisdict[a] = d[:4]     
 
-        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender,"filmography": movies_starring, "image" : image, "dict": thisdict})
+        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender,"filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb})
     else:
         return render(request, '404.html', {})
 
@@ -242,6 +240,40 @@ def movie(request):
         for e in res['results']['bindings']:
            directors_to_list.append(e['name']['value'])
 
-        return render(request, 'movie-detail.html', {"name": name, "director": directors_to_list, "cast" : cast_to_list})
+        sparql.setQuery('''
+            SELECT distinct ?item ?itemLabel ?countryLabel ?date ?prodcoLabel ?len ?restrictLabel ?imdb
+            WHERE {
+            ?item wdt:P31 wd:Q11424 .
+            ?item ?label "''' + str(name) + '''"@en .
+            ?item wdt:P3383 ?image .
+            ?item wdt:P2047 ?len .
+            ?item wdt:P3306 ?restrict .
+            ?item wdt:P495 ?country .
+            ?item wdt:P577 ?date .
+            ?item wdt:P345 ?imdb .
+            ?item wdt:P272 ?prodco . 
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
+            }
+            LIMIT 1
+        ''')
+
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        print(results)
+
+        if not results["results"]["bindings"]:
+            return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified","director" : directors_to_list, "rel_date" : "Unspecified", "cast" : cast_to_list, "country" : "Unspecified", "prodCo" : "Unspecified", "imdb" : "Unspecified"})
+
+        for result in results["results"]["bindings"]:
+            # image = result['image']['value']
+            release_date = result['date']['value']
+            country = result['countryLabel']['value']
+            prodCo = result['prodcoLabel']['value']
+            length = result['len']['value']
+            length = length+"m"
+            imdb = result['imdb']['value']
+
+
+        return render(request, 'movie-detail.html', {"name": name, "len" : length, "director": directors_to_list, "rel_date" : release_date[:10], "country" : country, "prodCo" : prodCo, "imdb" : imdb, "cast" : cast_to_list})
     else:
         return render(request, '404.html', {})

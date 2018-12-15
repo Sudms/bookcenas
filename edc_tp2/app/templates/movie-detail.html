@@ -154,9 +154,9 @@
                     <div class="col-md-12">
 
                         <div class="movie-poster">
-                            <img src="{% static 'assets/images/posters/poster-1.jpg'%}" alt="">
+                            <img src="{% static 'assets/images/posters/blank.png'%}" width="300px" height="444px" alt="">
 
-                            <a href="https://www.youtube.com/watch?v=Q0CbN8sfihY" class="play-video">
+                            <a class="play-video">
                                 <i class="fa fa-play"></i>
                             </a>
                         </div>
@@ -165,14 +165,11 @@
                         <div class="movie-details">
                             <h3 class="title">{{name}}</h3>
                             <ul class="movie-subtext">
-                                <li>PG-13</li>
-                                <li>2h 32min</li>
-                                <li>Action, Adventure, Fantasy</li>
-                                <li>15 December 2017 (USA)</li>
+                                {% comment %} <li>{{restrict}}</li> {% endcomment %}
+                                <li>{{len}}</li>
+                                {% comment %} <li>Action, Adventure, Fantasy</li> {% endcomment %}
+                                <li>{{rel_date}} ({{country}})</li>
                             </ul>
-
-                            <a href="#" class="btn btn-main btn-effect">trailer</a>
-                            <a href="#" class="btn rate-movie"><i class="icon-heart"></i></a>
 
                             <div class="rating mt10">
                                 <i class="fa fa-star"></i>
@@ -226,12 +223,11 @@
                                 <h3 class="title">Details</h3>
 
                                 <ul>
-                                    <li><strong>Release date: </strong></li>
+                                    <li><strong>Release date: </strong> {{rel_date}} </li>
                                     <li><strong>Director: </strong> {% for dir in director %} <a href="/celeb/?name={{dir}}"> {{dir}} {% endfor %}</a></li>
-                                    <li><strong>Country: </strong></li>
-                                    <li><strong>Language: </strong></li>
-                                    <li><strong>Production Co: </strong><a href="#"></a></li>
-                                    <li><strong>IMDb id: </strong><a href=""></a></li>
+                                    <li><strong>Country: </strong> {{country}} </li>
+                                    <li><strong>Production Co: </strong><a href="#"> {{prodCo}} </a></li>
+                                    <li><strong>IMDb id: </strong><a href="https://www.imdb.com/title/{{imdb}}">{{imdb}}</a></li>
                                 </ul>
                             </aside>
                             <!-- End of Details Widget -->
