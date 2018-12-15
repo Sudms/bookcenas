@@ -205,7 +205,6 @@
                             <!-- Storyline -->
                             <div class="storyline">
                                 <h3 class="title">Storyline</h3>
-
                                 <p>In ut odio libero, at vulputate urna. Nulla tristique mi a massa convallis cursus. Nulla eu mi magna. Etiam suscipit commodo gravida. Cras suscipit, quam vitae adipiscing faucibus, risus nibh laoreet odio, a porttitor metus eros ut enim. Morbi augue velit, tempus mattis dignissim nec, porta sed risus. Donec eget magna eu lorem tristique pellentesque eget eu dui. Fusce lacinia tempor malesuada. Ut lacus sapien, placerat a ornare nec, elementum sit amet felis. Maecenas pretium lorem hendrerit eros sagittis fermentum.</p>
                             </div>
 
@@ -228,11 +227,11 @@
 
                                 <ul>
                                     <li><strong>Release date: </strong></li>
-                                    <li><strong>Director: </strong><a href="/celeb/?name={{director}}">{{director}}</a></li>
-                                    <li><strong>Budget: </strong></li>
+                                    <li><strong>Director: </strong> {% for dir in director %} <a href="/celeb/?name={{dir}}"> {{dir}} {% endfor %}</a></li>
                                     <li><strong>Country: </strong></li>
                                     <li><strong>Language: </strong></li>
                                     <li><strong>Production Co: </strong><a href="#"></a></li>
+                                    <li><strong>IMDb id: </strong><a href=""></a></li>
                                 </ul>
                             </aside>
                             <!-- End of Details Widget -->
@@ -244,10 +243,7 @@
                                 <ul class="cast-wrapper">
                                 {% for actors in cast  %}
                                     <li>
-                                        <a href="celebrity-detail.html">
-                                            <span class="circle-img">
-                                                <img src="{% static 'assets/images/celebrities/celebrity1.jpg'%}" alt="">
-                                            </span>
+                                        <a href="/celeb/?name={{actors}}">
                                             <h6 class="name">{{actors}}</h6>
                                         </a>
                                     </li>

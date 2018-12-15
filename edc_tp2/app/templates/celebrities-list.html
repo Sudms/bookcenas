@@ -131,22 +131,22 @@
             <div class="container">
                  <!-- Start of Celebrities List -->
                 <div class="row">
-                    {% for celeb in celebs %}
+                    {% for k,v in celebs.items %}
                     <!-- Celebrity List Item -->
                     <div class="col-md-12 col-sm-12">
                         <div class="celebrity-list-1">
                             <div class="celeb-container">
                                  <!-- Celebrity Image -->
                                 <div class="celebrity-image">
-                                    <a href="celebrity-detail.html">
+                                    <a href="/celeb/?name={{k}}">
                                         {% comment %} Aplicar WIKIDATA aqui {% endcomment %}
-                                        <img src="{% static 'assets/images/celebrities/celebrity1.jpg'%}" alt="">
+                                        <img src="{{v}}" alt="">
                                     </a>
                                 </div>
                                  <!-- Celebrity Content -->
                                 <div class="celebrity-content">
                                     <div class="inner">
-                                        <h3 class="title"><a href="/celeb/?name={{celeb}}">{{celeb}}</a></h3>
+                                        <h3 class="title"><a href="/celeb/?name={{k}}">{{k}}</a></h3>
                                         {% comment %} Aplicar WIKIDATA aqui {% endcomment %}
                                         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
                                     </div>
