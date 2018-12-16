@@ -121,9 +121,6 @@
 
                             <!-- Menu Item -->
                             <li class="nav-item m-auto">
-                                <a href="#login-register-popup" class="btn btn-main btn-effect login-btn popup-with-zoom-anim">
-                                    <i class="icon-user"></i>login
-                                </a>
                             </li>
                         </ul>
                         <!-- ====== End of Extra Nav ====== -->
@@ -137,7 +134,7 @@
         </header>
         <!-- =============== END OF HEADER NAVIGATION =============== -->
 
-
+        {{not_found | safe}}
 
         <!-- =============== START OF MOVIE DETAIL INTRO =============== -->
         <section class="movie-detail-intro overlay-gradient ptb100" style="background: url({% static 'assets/images/other/movie-detail-bg.jpg'%});">
@@ -153,7 +150,8 @@
                     <div class="col-md-12">
 
                         <div class="movie-poster">
-                            <img src="{% static 'assets/images/posters/blank.png'%}" width="300px" height="444px" alt="">
+                            <img src="{{image | safe}}" width="300px" height="444px" alt="">
+                            {% comment %} {% static 'assets/images/posters/blank.png'%} {% endcomment %}
 
                             <a class="play-video">
                                 <i class="fa fa-play"></i>
@@ -167,7 +165,7 @@
                                 {% comment %} <li>{{restrict}}</li> {% endcomment %}
                                 <li>{{len}}</li>
                                 {% comment %} <li>Action, Adventure, Fantasy</li> {% endcomment %}
-                                <li>{{rel_date}} ({{country}})</li>
+                                <li>{{year}} ({{country}})</li>
                             </ul>
 
                             <div class="rating mt10">

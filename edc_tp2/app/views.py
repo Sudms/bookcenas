@@ -5,10 +5,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-endpoint = "http://localhost:7200"
+endpoint = "http://localhost:8000"
 repo_name = "movies"
-
-# QUERY https://query.wikidata.org/#SELECT%20distinct%20%3Fitem%20%3FitemLabel%20%3Foccupation%20%3Fcountry%20%3Fgender%20%3Fbirth%20%3Fdeath%20%3Fimage%20%0AWHERE%20%7B%0A%3Fitem%20wdt%3AP31%20wd%3AQ5%20.%0A%3Fitem%20%3Flabel%20%22Johnny%20Depp%22%40en%20.%0A%3Fitem%20wdt%3AP569%20%3Fbirth%20.%0A%3Fitem%20wdt%3AP106%20%3Foccupation%20.%0A%3Fitem%20wdt%3AP27%20%3Fcountry%20.%0A%3Fitem%20wdt%3AP18%20%3Fimage%20.%0A%3Fitem%20wdt%3AP21%20%3Fgender%20.%0AOPTIONAL%20%7B%3Fitem%20wdt%3AP570%20%3Fdeath%20.%7D%0A%0ASERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D
 
 client = ApiClient(endpoint=endpoint)
 accessor = GraphDBApi(client)
@@ -85,8 +83,7 @@ def home(request):
                     ?item wdt:P31 wd:Q5 .?item ?label "''' + str(celeb_name) + '''"@en .
                     ?item wdt:P18 ?image .
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-                    }
-                ''')
+                    }''')
 
                 sparql.setReturnFormat(JSON)
                 results = sparql.query().convert()
@@ -111,7 +108,7 @@ def celebrity(request):
         name = request.GET['name']
         
         query = '''
-           PREFIX movPred:<http://movies.org/pred/>
+            PREFIX movPred:<http://movies.org/pred/>
             SELECT ?mov
             WHERE{
             {
@@ -140,7 +137,7 @@ def celebrity(request):
 
         sparql.setQuery(
             '''
-            SELECT distinct ?item ?itemLabel ?countryLabel ?genderLabel ?birth ?death ?image ?imdb
+            SELECT distinct ?item ?itemLabel ?countryLabel ?genderLabel ?birth ?image ?imdb
             WHERE {
             ?item wdt:P31 wd:Q5 .?item ?label "''' + str(name) + '''"@en .
             ?item wdt:P569 ?birth .
@@ -148,10 +145,9 @@ def celebrity(request):
             ?item wdt:P18 ?image .
             ?item wdt:P21 ?gender .
             ?item wdt:P345 ?imdb .
-            OPTIONAL {?item wdt:P570 ?death .}
+            OPTIONAL {?item wdt:P570 ?death . }
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-            }
-            ''')
+            }''')
 
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
@@ -167,29 +163,57 @@ def celebrity(request):
         sparql.setQuery(
             '''
             SELECT ?actor ?actorLabel ?award ?awardLabel ?date
-            WHERE
-            {
-            # find a human
+            WHERE {
             ?actor wdt:P31 wd:Q5 .
             ?actor rdfs:label "''' + str(name) + '''"@en .
-            ?actor p:P166 ?awardstatement .
-            ?awardstatement ps:P166 ?award .
-            ?awardstatement pq:P585 ?date .
-            ?awardstatement pq:P1686 ?forWork .
+            ?actor p:P166 ?awardstat .
+            ?awardstat ps:P166 ?award .
+            ?awardstat pq:P585 ?date .
+            ?awardstat pq:P1686 ?forWork .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
-            }
-            ''')
+            }''')
 
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
         thisdict = dict()
 
+        # If request fails (celebs)
+        if not results["results"]["bindings"]:
+            # "not_found" : "<script>alert('No information was found on the wikidata for this person.');</script>"
+
+            sparql.setQuery(
+                '''
+                SELECT distinct ?item ?itemLabel ?countryLabel ?genderLabel ?birth ?death ?image ?imdb
+                WHERE {
+                ?item wdt:P31 wd:Q5 .?item ?label "''' + str(name) + '''"@en .
+                ?item wdt:P569 ?birth .
+                ?item wdt:P27 ?country .
+                ?item wdt:P21 ?gender .
+                ?item wdt:P345 ?imdb .
+                SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+                }''')
+
+            sparql.setReturnFormat(JSON)
+            results = sparql.query().convert()
+
+            if not results["results"]["bindings"]:
+                return render(request, 'celebrity-detail.html', {"name": name, "birth" : "Unspecified", "country" : "Unspecified", "gender" : "Unspecified", "filmography": movies_starring, "dict": thisdict, "imdb" : "Unspecified", "not_found" : "<script>alert('No information was found on the wikidata for this person.');</script>", "image" : "/static/assets/images/posters/blank.png"})
+
+            for result in results["results"]["bindings"]:
+                birth = result["birth"]["value"]
+                birth = birth[:10]
+                country = result["countryLabel"]["value"]
+                gender = result["genderLabel"]["value"]
+                imdb = result["imdb"]["value"]
+
+            return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "dict": thisdict, "imdb" : imdb})
+
         for result in results["results"]["bindings"]:
             a = result["awardLabel"]["value"]
             d = result["date"]["value"]
-            thisdict[a] = d[:4]     
+            thisdict[a] = d[:4]
 
-        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender,"filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb})
+        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb})
     else:
         return render(request, '404.html', {})
 
@@ -222,16 +246,17 @@ def movie(request):
         print(cast_to_list)
 
         query = '''
-        PREFIX movPred:<http://movies.org/pred/>
-        SELECT distinct ?name
-        WHERE{
-    	?film movPred:directed_by ?director.
-    	?film movPred:name ?s .
-    	?film movPred:directed_by ?o .
-    	?o movPred:name ?name .
-    	FILTER regex(?s, "''' + str(name) + '''", "i") .
-        }
+            PREFIX movPred:<http://movies.org/pred/>
+            SELECT distinct ?name
+            WHERE{
+            ?film movPred:directed_by ?director.
+            ?film movPred:name ?s .
+            ?film movPred:directed_by ?o .
+            ?o movPred:name ?name .
+            FILTER regex(?s, "''' + str(name) + '''", "i") .
+            }
         '''
+
         payload_query = {"query" : query}
         res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
         res = json.loads(res)
@@ -241,7 +266,7 @@ def movie(request):
            directors_to_list.append(e['name']['value'])
 
         sparql.setQuery('''
-            SELECT distinct ?item ?itemLabel ?countryLabel ?date ?prodcoLabel ?len ?restrictLabel ?imdb
+            SELECT distinct ?item ?itemLabel ?countryLabel ?date ?prodcoLabel ?len ?restrictLabel ?imdb ?image
             WHERE {
             ?item wdt:P31 wd:Q11424 .
             ?item ?label "''' + str(name) + '''"@en .
@@ -253,19 +278,40 @@ def movie(request):
             ?item wdt:P345 ?imdb .
             ?item wdt:P272 ?prodco . 
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
-            }
-            LIMIT 1
-        ''')
+            } LIMIT 1 ''')
 
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
-        print(results)
 
+        # If query fails (movies)
         if not results["results"]["bindings"]:
-            return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified","director" : directors_to_list, "rel_date" : "Unspecified", "cast" : cast_to_list, "country" : "Unspecified", "prodCo" : "Unspecified", "imdb" : "Unspecified"})
+            sparql.setQuery('''
+            SELECT distinct ?item ?itemLabel ?countryLabel ?date ?prodcoLabel ?restrictLabel ?imdb
+            WHERE {
+            ?item wdt:P31 wd:Q11424 .
+            ?item ?label "''' + str(name) + '''"@en .
+            ?item wdt:P495 ?country .
+            ?item wdt:P577 ?date .
+            ?item wdt:P345 ?imdb .
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
+            } LIMIT 1 ''')
+
+            sparql.setReturnFormat(JSON)
+            results = sparql.query().convert()
+
+            if not results["results"]["bindings"]:
+                return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified", "director": directors_to_list, "rel_date" : "Unspecified", "year" : "Unspecified", "country" : "Unspecified", "imdb" : "Unspecified", "cast" : cast_to_list, "prodCo" : "Unspecified", "image" : "/static/assets/images/posters/blank.png", "not_found" : "<script>alert('No information was found on the wikidata for this movie.');</script>"})
+
+            for result in results["results"]["bindings"]:
+                release_date = result['date']['value']
+                country = result['countryLabel']['value']
+                imdb = result['imdb']['value']
+
+            return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified", "director": directors_to_list, "rel_date" : release_date[:10], "year" : (release_date[:10])[:4],"country" : country, "imdb" : imdb, "cast" : cast_to_list, "prodCo" : "Unspecified", "image" : "/static/assets/images/posters/blank.png"})
+            # return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified","director" : directors_to_list, "rel_date" : "Unspecified", "cast" : cast_to_list, "country" : "Unspecified", "prodCo" : "Unspecified", "imdb" : "Unspecified"})
 
         for result in results["results"]["bindings"]:
-            # image = result['image']['value']
+            image = result['image']['value']
             release_date = result['date']['value']
             country = result['countryLabel']['value']
             prodCo = result['prodcoLabel']['value']
@@ -274,6 +320,6 @@ def movie(request):
             imdb = result['imdb']['value']
 
 
-        return render(request, 'movie-detail.html', {"name": name, "len" : length, "director": directors_to_list, "rel_date" : release_date[:10], "country" : country, "prodCo" : prodCo, "imdb" : imdb, "cast" : cast_to_list})
+        return render(request, 'movie-detail.html', {"name": name, "len" : length, "director": directors_to_list, "rel_date" : release_date[:10], "country" : country, "prodCo" : prodCo, "imdb" : imdb, "cast" : cast_to_list, "image" : image})
     else:
         return render(request, '404.html', {})
