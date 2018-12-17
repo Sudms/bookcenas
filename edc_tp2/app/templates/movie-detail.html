@@ -138,20 +138,46 @@
 
         <!-- =============== START OF MOVIE DETAIL INTRO =============== -->
         <section class="movie-detail-intro overlay-gradient ptb100" style="background: url({% static 'assets/images/other/movie-detail-bg.jpg'%});">
+            <div class="container">
+                    <div class="movie-details">
+                        <h3 class="title">{{name}}</h3>
+    
+                        <ul class="movie-subtext">
+                            <li>{{len}}</li>
+                            {% comment %} <li>Action, Adventure, Fantasy</li> {% endcomment %}
+                            <li>{{year}} ({{country}})</li>
+                        </ul>
+    
+                        {% comment %} <div class="rating mt10">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star-o"></i>
+                            <span>296 Ratings</span>
+                        </div> {% endcomment %}
+                    </div>
+    
+                    <a href="" class="play-video">
+                        <i class="fa fa-play"></i>
+                    </a>
+    
+                </div>
+        
         </section>
         <!-- =============== END OF MOVIE DETAIL INTRO =============== -->
 
 
 
         <!-- =============== START OF MOVIE DETAIL INTRO 2 =============== -->
-        <section class="movie-detail-intro2">
+        {% comment %} <section class="movie-detail-intro2">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
 
                         <div class="movie-poster">
                             <img src="{{image | safe}}" width="300px" height="444px" alt="">
-                            {% comment %} {% static 'assets/images/posters/blank.png'%} {% endcomment %}
+                           {% static 'assets/images/posters/blank.png'%} 
 
                             <a class="play-video">
                                 <i class="fa fa-play"></i>
@@ -162,9 +188,7 @@
                         <div class="movie-details">
                             <h3 class="title">{{name}}</h3>
                             <ul class="movie-subtext">
-                                {% comment %} <li>{{restrict}}</li> {% endcomment %}
                                 <li>{{len}}</li>
-                                {% comment %} <li>Action, Adventure, Fantasy</li> {% endcomment %}
                                 <li>{{year}} ({{country}})</li>
                             </ul>
 
@@ -183,7 +207,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> {% endcomment %}
         <!-- =============== End OF MOVIE DETAIL INTRO 2 =============== -->
 
 
@@ -225,6 +249,7 @@
                                     <li><strong>Country: </strong> {{country}} </li>
                                     <li><strong>Production Co: </strong><a href="#"> {{prodCo}} </a></li>
                                     <li><strong>IMDb id: </strong><a href="https://www.imdb.com/title/{{imdb}}">{{imdb}}</a></li>
+                                    <li><img src={{wikidata | safe}} ></li>
                                 </ul>
                             </aside>
                             <!-- End of Details Widget -->

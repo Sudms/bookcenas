@@ -133,6 +133,7 @@
                     <div class="col-md-12 col-sm-12">
                         <div class="movie-list-1 mb30">
                             <div class="listing-container">
+                            {% comment %} 
                                  <!-- Movie List Image -->
                                 <div class="listing-image">
                                      <!-- Play Button -->
@@ -140,15 +141,10 @@
                                         <a href="https://www.youtube.com/watch?v=Q0CbN8sfihY" class="play-video">
                                             <i class="fa fa-play"></i>
                                         </a>
-                                    </div>
+                                    </div> 
                                      <!-- Buttons -->
                                     <div class="buttons">
-                                        <a href="/" data-original-title="Rate" data-toggle="tooltip" data-placement="bottom">
-                                            <i class="icon-heart"></i>
-                                        </a>
-                                         <a href="/" data-original-title="Share" data-toggle="tooltip" data-placement="bottom">
-                                            <i class="icon-share"></i>
-                                        </a>
+                                     
                                     </div>
                                      <!-- Rating -->
                                     <div class="stars">
@@ -163,6 +159,7 @@
                                      <!-- Image -->
                                     <img src="{% static 'assets/images/posters/poster-1.jpg'%}" alt="">
                                 </div>
+                                {% endcomment %}
                                  <!-- Movie List Content -->
                                 <div class="listing-content">
                                     <div class="inner">

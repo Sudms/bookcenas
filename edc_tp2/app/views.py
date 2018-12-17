@@ -5,12 +5,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-endpoint = "http://localhost:8000"
+endpoint = "http://localhost:7200"
 repo_name = "movies"
 
 client = ApiClient(endpoint=endpoint)
 accessor = GraphDBApi(client)
 sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+wikidata = "/static/assets/images/Wikidata_stamp_rec_light.png"
 
 # Create your views here.
 
@@ -187,6 +188,7 @@ def celebrity(request):
                 WHERE {
                 ?item wdt:P31 wd:Q5 .?item ?label "''' + str(name) + '''"@en .
                 ?item wdt:P569 ?birth .
+                ?item wdt:P18 ?image .
                 ?item wdt:P27 ?country .
                 ?item wdt:P21 ?gender .
                 ?item wdt:P345 ?imdb .
@@ -205,15 +207,16 @@ def celebrity(request):
                 country = result["countryLabel"]["value"]
                 gender = result["genderLabel"]["value"]
                 imdb = result["imdb"]["value"]
+                image = result["image"]["value"]
 
-            return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "dict": thisdict, "imdb" : imdb})
+            return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "image" : image,"filmography": movies_starring, "dict": thisdict, "imdb" : imdb, "wikidata" : wikidata})
 
         for result in results["results"]["bindings"]:
             a = result["awardLabel"]["value"]
             d = result["date"]["value"]
             thisdict[a] = d[:4]
 
-        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb})
+        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb, "wikidata" : wikidata})
     else:
         return render(request, '404.html', {})
 
@@ -266,11 +269,10 @@ def movie(request):
            directors_to_list.append(e['name']['value'])
 
         sparql.setQuery('''
-            SELECT distinct ?item ?itemLabel ?countryLabel ?date ?prodcoLabel ?len ?restrictLabel ?imdb ?image
+            SELECT distinct ?item ?itemLabel ?countryLabel ?date ?prodcoLabel ?len ?restrictLabel ?imdb
             WHERE {
             ?item wdt:P31 wd:Q11424 .
             ?item ?label "''' + str(name) + '''"@en .
-            ?item wdt:P3383 ?image .
             ?item wdt:P2047 ?len .
             ?item wdt:P3306 ?restrict .
             ?item wdt:P495 ?country .
@@ -300,26 +302,25 @@ def movie(request):
             results = sparql.query().convert()
 
             if not results["results"]["bindings"]:
-                return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified", "director": directors_to_list, "rel_date" : "Unspecified", "year" : "Unspecified", "country" : "Unspecified", "imdb" : "Unspecified", "cast" : cast_to_list, "prodCo" : "Unspecified", "image" : "/static/assets/images/posters/blank.png", "not_found" : "<script>alert('No information was found on the wikidata for this movie.');</script>"})
+                return render(request, 'movie-detail.html', {"name": name, "len" : "Unknown length", "director": directors_to_list, "rel_date" : "Unspecified", "year" : "Unspecified", "country" : "Unspecified", "imdb" : "Unspecified", "cast" : cast_to_list, "prodCo" : "Unspecified", "not_found" : "<script>alert('No information was found on the wikidata for this movie.');</script>"})
 
             for result in results["results"]["bindings"]:
                 release_date = result['date']['value']
                 country = result['countryLabel']['value']
                 imdb = result['imdb']['value']
 
-            return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified", "director": directors_to_list, "rel_date" : release_date[:10], "year" : (release_date[:10])[:4],"country" : country, "imdb" : imdb, "cast" : cast_to_list, "prodCo" : "Unspecified", "image" : "/static/assets/images/posters/blank.png"})
+            return render(request, 'movie-detail.html', {"name": name, "len" : "Unknown length", "director": directors_to_list, "rel_date" : release_date[:10], "year" : (release_date[:10])[:4],"country" : country, "imdb" : imdb, "cast" : cast_to_list, "prodCo" : "Unspecified", "wikidata" : wikidata})
             # return render(request, 'movie-detail.html', {"name": name, "len" : "Unspecified","director" : directors_to_list, "rel_date" : "Unspecified", "cast" : cast_to_list, "country" : "Unspecified", "prodCo" : "Unspecified", "imdb" : "Unspecified"})
 
         for result in results["results"]["bindings"]:
-            image = result['image']['value']
             release_date = result['date']['value']
             country = result['countryLabel']['value']
             prodCo = result['prodcoLabel']['value']
             length = result['len']['value']
-            length = length+"m"
+            length = length+"min"
             imdb = result['imdb']['value']
 
 
-        return render(request, 'movie-detail.html', {"name": name, "len" : length, "director": directors_to_list, "rel_date" : release_date[:10], "country" : country, "prodCo" : prodCo, "imdb" : imdb, "cast" : cast_to_list, "image" : image})
+        return render(request, 'movie-detail.html', {"name": name, "len" : length, "director": directors_to_list, "rel_date" : release_date[:10], "country" : country, "prodCo" : prodCo, "imdb" : imdb, "cast" : cast_to_list, "wikidata" : wikidata})
     else:
         return render(request, '404.html', {})
