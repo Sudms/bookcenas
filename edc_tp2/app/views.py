@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-endpoint = "http://localhost:7200"
+endpoint = "http://localhost:8000"
 repo_name = "movies"
 
 client = ApiClient(endpoint=endpoint)
@@ -136,6 +136,50 @@ def celebrity(request):
         for e in res['results']['bindings']:
             movies_starring.append(e['mov']['value'])
 
+        # Ask if actor
+        query = '''
+            PREFIX movPred:<http://movies.org/pred/>
+            ASK
+            WHERE {
+            {
+            ?film movPred:starring ?who .
+            ?who movPred:name ?name .
+            ?film movPred:name ?mov .
+            }
+            FILTER regex(?name, "''' + str(name) + '''", "i")
+            }'''
+
+        payload_query = {"query" : query}
+        res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
+        res = json.loads(res)
+        is_actor = res['boolean']
+        print("ACTOR:", is_actor)
+
+        # Ask if director
+        query = '''
+            PREFIX movPred:<http://movies.org/pred/>
+            ASK
+            WHERE {
+            {
+            ?film movPred:directed_by ?real .
+            ?real movPred:name ?name .
+            }
+            FILTER regex(?name, "''' + str(name) + '''", "i")
+            }'''
+
+        payload_query = {"query" : query}
+        res = accessor.sparql_select(body=payload_query, repo_name=repo_name)
+        res = json.loads(res)
+        is_director = res['boolean']
+        print(is_director)
+        
+        if is_actor and is_director:
+            role = "Actor/Director"
+        elif is_actor and not is_director:
+            role = "Actor"
+        elif not is_actor and is_director:
+            role = "Director"
+
         sparql.setQuery(
             '''
             SELECT distinct ?item ?itemLabel ?countryLabel ?genderLabel ?birth ?image ?imdb
@@ -158,6 +202,8 @@ def celebrity(request):
             birth = birth[:10]
             country = result["countryLabel"]["value"]
             gender = result["genderLabel"]["value"]
+            if gender == 'female':
+                role = "Actress"
             image = result["image"]["value"]
             imdb = result["imdb"]["value"]
 
@@ -199,28 +245,28 @@ def celebrity(request):
             results = sparql.query().convert()
 
             if not results["results"]["bindings"]:
-                return render(request, 'celebrity-detail.html', {"name": name, "birth" : "Unspecified", "country" : "Unspecified", "gender" : "Unspecified", "filmography": movies_starring, "dict": thisdict, "imdb" : "Unspecified", "not_found" : "<script>alert('No information was found on the wikidata for this person.');</script>", "image" : "/static/assets/images/posters/blank.png"})
+                return render(request, 'celebrity-detail.html', {"name": name, "birth" : "Unspecified", "country" : "Unspecified", "gender" : "Unspecified", "filmography": movies_starring, "dict": thisdict, "imdb" : "Unspecified", "not_found" : "<script>alert('No information was found on the wikidata for this person.');</script>", "image" : "/static/assets/images/posters/blank.png", "role" : role})
 
             for result in results["results"]["bindings"]:
                 birth = result["birth"]["value"]
                 birth = birth[:10]
                 country = result["countryLabel"]["value"]
                 gender = result["genderLabel"]["value"]
+                if gender == 'female':
+                    role = "Actress"
                 imdb = result["imdb"]["value"]
                 image = result["image"]["value"]
 
-            return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "image" : image,"filmography": movies_starring, "dict": thisdict, "imdb" : imdb, "wikidata" : wikidata})
+            return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "image" : image,"filmography": movies_starring, "dict": thisdict, "imdb" : imdb, "wikidata" : wikidata, "role" : role})
 
         for result in results["results"]["bindings"]:
             a = result["awardLabel"]["value"]
             d = result["date"]["value"]
             thisdict[a] = d[:4]
 
-        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb, "wikidata" : wikidata})
+        return render(request, 'celebrity-detail.html', {"name" : name, "birth" : birth, "country" : country, "gender" : gender, "filmography": movies_starring, "image" : image, "dict": thisdict, "imdb" : imdb, "wikidata" : wikidata, "role" : role})
     else:
         return render(request, '404.html', {})
-
-    
 
 def movie(request):
     if 'name' in request.GET:
