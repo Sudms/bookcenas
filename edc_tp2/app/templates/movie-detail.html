@@ -170,73 +170,22 @@
 
 
         <!-- =============== START OF MOVIE DETAIL INTRO 2 =============== -->
-        {% comment %} <section class="movie-detail-intro2">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-
-                        <div class="movie-poster">
-                            <img src="{{image | safe}}" width="300px" height="444px" alt="">
-                           {% static 'assets/images/posters/blank.png'%} 
-
-                            <a class="play-video">
-                                <i class="fa fa-play"></i>
-                            </a>
-                        </div>
-
-
-                        <div class="movie-details">
-                            <h3 class="title">{{name}}</h3>
-                            <ul class="movie-subtext">
-                                <li>{{len}}</li>
-                                <li>{{year}} ({{country}})</li>
-                            </ul>
-
-                            <div class="rating mt10">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o"></i>
-                                <span>296 Ratings</span>
-                            </div>
-                        </div>
-
-                        <div class="clearfix"></div>
-
-                    </div>
-                </div>
-            </div>
-        </section> {% endcomment %}
+        
         <!-- =============== End OF MOVIE DETAIL INTRO 2 =============== -->
 
 
         <!-- =============== START OF MOVIE DETAIL MAIN SECTION =============== -->
         <section class="movie-detail-main ptb100">
-            <div class="container">
+            <div class="container" xmlns:foaf="http://xmlns.com/foaf/0.1/" about="http://movies.org/movies.rdf#ts" typeof="foaf:Movie">
 
                 <div class="row">
                     <!-- Start of Movie Main -->
-                    <div class="col-lg-8 col-sm-12">
-                        <div class="inner pr50">
-
-                            <!-- Storyline -->
-                            <div class="storyline">
-                                <h3 class="title">Storyline</h3>
-                                <p>In ut odio libero, at vulputate urna. Nulla tristique mi a massa convallis cursus. Nulla eu mi magna. Etiam suscipit commodo gravida. Cras suscipit, quam vitae adipiscing faucibus, risus nibh laoreet odio, a porttitor metus eros ut enim. Morbi augue velit, tempus mattis dignissim nec, porta sed risus. Donec eget magna eu lorem tristique pellentesque eget eu dui. Fusce lacinia tempor malesuada. Ut lacus sapien, placerat a ornare nec, elementum sit amet felis. Maecenas pretium lorem hendrerit eros sagittis fermentum.</p>
-                            </div>
-
-                            <!-- Media -->
-                            <div class="movie-media mt50">
-                            </div>
-
-                        </div>
-                    </div>
+                   
                     <!-- End of Movie Main -->
 
 
                     <!-- Start of Sidebar -->
-                    <div class="col-lg-4 col-sm-12">
+                    <div class="col-lg-12 col-sm-12">
                         <div class="sidebar">
 
                             <!-- Start of Details Widget -->
@@ -244,16 +193,17 @@
                                 <h3 class="title">Details</h3>
 
                                 <ul>
-                                    <li><strong>Release date: </strong> {{rel_date}} </li>
-                                    <li><strong>Director: </strong> {% for dir in director %} <a href="/celeb/?name={{dir}}"> {{dir}} {% endfor %}</a></li>
-                                    <li><strong>Country: </strong> {{country}} </li>
+                                    <li><strong>Release date: </strong> <foaf:Movie rdf:about="{{rel_date}}"> {{rel_date}} </li>
+                                    <li><strong>Director: </strong> {% for dir in director %} <foaf:Movie rdf:about="{{dir}}"> <a href="/celeb/?name={{dir}}"> {{dir}} {% endfor %}</a></li>
+                                    <li><strong>Country: </strong> <foaf:Movie rdf:about="{{country}}"> {{country}} </li>
                                     <li><strong>Production Co: </strong><a href="#"> {{prodCo}} </a></li>
-                                    <li><strong>IMDb id: </strong><a href="https://www.imdb.com/title/{{imdb}}">{{imdb}}</a></li>
-                                    <li><img src={{wikidata | safe}} ></li>
+                                    <li><strong> IMDb id: </strong><foaf:Movie rdf:about="{{imdb}}"><a href="https://www.imdb.com/title/{{imdb}}">{{imdb}}</a></li>
                                 </ul>
                             </aside>
                             <!-- End of Details Widget -->
 
+                             <img src={{wikidata | safe}} style="display: block;margin-left: auto;margin-right: auto;width: 15%;"><br><br>
+                            
                             <!-- Start of Details Widget -->
                             <aside class="widget widget-movie-cast">
                                 <h3 class="title">Cast</h3>

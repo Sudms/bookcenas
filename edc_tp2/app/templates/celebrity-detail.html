@@ -143,19 +143,21 @@
 
         <!-- =============== START OF CELEBRITY DETAIL =============== -->
         <section class="celeb-detail pb100">
-            <div class="container">
+            <div class="container" xmlns:foaf="http://xmlns.com/foaf/0.1/" about="http://movies.org/movies.rdf#ts" typeof="foaf:Person">
                 <div class="row">
 
                     <div class="col-md-4 col-12">
                         <div class="celeb-img">
                             <img src="{{image}}" alt="">
+                            <foaf:img rdf:resource={{image}}/>
                         </div>
                     </div>
                     <div class="col-md-8 col-12">
                         <div class="celeb-details">
                             <h3 class="title">{{name}}</h3>
+                            <foaf:Person rdf:about="{{name}}">
                             <span class="profession">{{role}}</span>
-
+                            <foaf:Person rdf:about="{{role}}">
                             <!-- tab links -->
                             <ul class="nav tab-links">
                                 <li class="nav-item">
@@ -173,20 +175,18 @@
                             <div class="tab-content mt70">
 
                                 <div class="tab-pane fade active show" id="bio" role="tabpanel" aria-labelledby="bio-tab" aria-expanded="false">
-                                    <div class="bio-description">
-                                        <p>In ut odio libero, at vulputate urna. Nulla tristique mi a massa convallis cursus. Nulla eu mi magna. Etiam suscipit commodo gravida. Cras suscipit, quam vitae adipiscing faucibus, risus nibh laoreet odio, a porttitor metus eros ut enim. Morbi augue velit, tempus mattis dignissim nec, porta sed risus. Donec eget magna eu lorem tristique pellentesque eget eu dui. Fusce lacinia tempor malesuada. Ut lacus sapien, placerat a ornare nec, elementum sit amet felis. Maecenas pretium lorem hendrerit eros sagittis fermentum.</p>
-                                    </div>
-
-                                    <div class="bio-details">
-                                        <ul class="bio-wrapper">
-                                            <li><strong>Birth:</strong> {{birth}} </li>
-                                            <li><strong>Gender:</strong> {{gender}} </li>
-                                            <li><strong>Country:</strong> {{country}} </li>
-                                            <li><strong>IMDb id: </strong> <a href="https://www.imdb.com/name/{{imdb}}">{{imdb}}</a></li>
+                                    {% comment %} <div class="bio-description">
+                                        <p></p>
+                                    </div> {% endcomment %}
+                                    <aside class="widget widget-movie-details">
+                                        <ul class="film-list">
+                                            <li><strong>Birth:</strong> <foaf:Person rdf:about="{{birth}}">{{birth}}</li>   
+                                            <li><strong>Gender:</strong><foaf:Person rdf:about="{{gender}}"> {{gender}} </li>
+                                            <li><strong>Country:</strong><foaf:Person rdf:about="{{country}}"> {{country}} </li>
+                                            <li><strong>IMDb id: </strong> <foaf:Person rdf:about="{{imdb}}"> <a href="https://www.imdb.com/name/{{imdb}}">{{imdb}}</a></li>
                                         </ul>
-                                        <img src={{wikidata | safe}}>
-                                    </div>
-
+                                    </aside><br>
+                                   <img src={{wikidata | safe}}  style="display: block;margin-left: auto;margin-right: auto;width: 15%;">
                                     <div class="clearfix"></div>
                                 </div>
 
